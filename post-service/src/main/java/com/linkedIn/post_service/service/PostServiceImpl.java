@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.beans.BeanProperty;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,5 +31,21 @@ public class PostServiceImpl {
         PostDto postDto = new PostDto();
         BeanUtils.copyProperties(save, postDto);
         return postDto;
+    }
+
+    public PostDto getPostById(Long postId) {
+        Post idFound = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Id not Found"));
+        PostDto postDto = new PostDto();
+        BeanUtils.copyProperties(idFound, postDto);
+        return postDto;
+    }
+
+    public List<PostDto> getAllPostOfTheUser(Long userId) {
+        List<Post> byUserId = postRepository.findByUserId(userId);
+        return byUserId.stream().map(post -> {
+            PostDto dto = new PostDto();
+            BeanUtils.copyProperties(byUserId, dto);
+            return dto;
+        }).collect(Collectors.toList());
     }
 }
