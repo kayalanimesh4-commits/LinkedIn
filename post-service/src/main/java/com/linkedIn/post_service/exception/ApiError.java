@@ -2,6 +2,7 @@ package com.linkedIn.post_service.exception;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
 
@@ -16,9 +17,9 @@ public class ApiError {
         this.timeStamp = LocalDateTime.now();
     }
 
-    public ApiError(String error, HttpStatus statusCode) {
+    public ApiError(HttpStatus statusCode, String error) {
         this();
-        this.error = error;
         this.statusCode = statusCode;
+        this.error = error;
     }
 }

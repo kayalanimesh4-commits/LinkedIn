@@ -19,12 +19,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private UserRepository userRepository;
-    private JwtService jwtService;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     public UserDto signUp(SignUpRequestDto signUpRequestDto) {
-        Optional<User> byEmail = userRepository.findByEmail(signUpRequestDto.getEmail());
-        if(byEmail.isPresent()) throw new BadRequestException("email already exist");
+//        Optional<User> byEmail = userRepository.findByEmail(signUpRequestDto.getEmail());
+//        if(byEmail.isPresent()) throw new BadRequestException("email already exist");
         User user = new User();
         BeanUtils.copyProperties(signUpRequestDto, user, "password");
         user.setPassword(PasswordUtils.hashPassword(signUpRequestDto.getPassword()));
@@ -33,6 +33,8 @@ public class AuthService {
         BeanUtils.copyProperties(saved, dto);
         return dto;
     }
+
+
 
     public String login(LoginRequestDto loginRequestDto) {
        User byEmail = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()-> new RuntimeException("Password is Invalid: " + loginRequestDto.getPassword()));
