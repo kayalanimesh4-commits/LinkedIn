@@ -1,5 +1,6 @@
 package com.linkedIn.post_service.controller;
 
+import com.linkedIn.post_service.auth.UserContextLoader;
 import com.linkedIn.post_service.dto.PostCreateRequestDto;
 import com.linkedIn.post_service.dto.PostDto;
 import com.linkedIn.post_service.entity.Post;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Enumeration;
 import java.util.List;
 
 import java.util.List;
@@ -28,17 +30,18 @@ public class PostController {
     private PostServiceImpl postService;
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto, HttpServletRequest httpServletRequest){
-       PostDto createPost= postService.createPost(postCreateRequestDto, 1L);
+    public ResponseEntity<PostDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto){
+        Long userId = UserContextLoader.getCurrentUserId();
+        PostDto createPost= postService.createPost(postCreateRequestDto, userId);
         return new ResponseEntity<>(createPost, HttpStatus.CREATED);
 
     }
 
-    @GetMapping
-    public ResponseEntity<List<PostDto>> getAllPost(){
-        List<PostDto> allPost = postService.getAllPost();
-        return new ResponseEntity<>(allPost,HttpStatus.OK);
-    }
+//    @GetMapping
+//    public ResponseEntity<List<PostDto>> getAllPost(){
+//        List<PostDto> allPost = postService.getAllPost();
+//        return new ResponseEntity<>(allPost,HttpStatus.OK);
+//    }
 
     @GetMapping("{/postId}")
     public ResponseEntity<PostDto> getPostById (@PathVariable Long postId){

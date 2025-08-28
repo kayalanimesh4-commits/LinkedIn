@@ -1,5 +1,7 @@
 package com.linkedIn.Api_gateway.filters;
 
+import io.jsonwebtoken.JwtException;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +30,35 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
     public GatewayFilter apply(AuthFilter.Config config) {
         GatewayFilter gatewayFilter = (exchange, chain) -> {
             log.info("Login request: {}", exchange.getRequest().getURI());
-            final String tokenHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
-            if (tokenHeader.isEmpty() || tokenHeader == null || tokenHeader.startsWith("Bearer")) {
+
+            final String authorizationHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
+
+            if (authorizationHeader.isEmpty() || authorizationHeader == null || authorizationHeader.startsWith("Bearer")) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 log.error("Authorization token header not found");
                 return exchange.getResponse().setComplete();
             }
-            final String token = tokenHeader.split("Bearer")[1];
-            String userIdFromToken = jwtService.getUserIdFromToken(token);
-            ServerWebExchange build = exchange.mutate().request(r -> r.header("X-user_Id", userIdFromToken)).build();
 
-            return chain.filter(build);
+            final String token = authorizationHeader.split("Bearer ")[1];
+            try {
+                String userIdFromToken = jwtService.getUserIdFromToken(token);
+                ServerWebExchange build = exchange.mutate().request(r -> r.header("X-user_Id", userIdFromToken)).build();
+                return chain.filter(build);
+            }catch (JwtException ex){
+                log.error("JWT Exception: {}"+ ex.getLocalizedMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
         };
         return gatewayFilter;
 
 
     };
 
+    @Data
     public static class Config {
         // You can add filter properties here if needed
         // For example, boolean validateSignature; or String secret;
+        private boolean isEnabled;
     }
 }

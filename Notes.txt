@@ -1,0 +1,5 @@
+1.PersonRepository in Connection Service use CouchBaseDb
+
+2.Building Blocking a user Functionality
+
+3.Auth from Connection service copy

@@ -1,17 +1,18 @@
 package com.linkedIn.post_service.service;
 
+import com.linkedIn.post_service.auth.UserContextLoader;
+import com.linkedIn.post_service.clients.ConnectionClient;
+import com.linkedIn.post_service.dto.PersonDto;
 import com.linkedIn.post_service.dto.PostCreateRequestDto;
 import com.linkedIn.post_service.dto.PostDto;
 import com.linkedIn.post_service.entity.Post;
 import com.linkedIn.post_service.repository.PostRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.beans.BeanProperty;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,9 @@ public class PostServiceImpl {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private ConnectionClient connectionClient;
 
     public PostDto createPost(PostCreateRequestDto postCreateRequestDto, Long userId) {
         Post post = new Post();
@@ -34,7 +38,11 @@ public class PostServiceImpl {
     }
 
     public PostDto getPostById(Long postId) {
+        Long userId = UserContextLoader.getCurrentUserId();
         Post idFound = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Id not Found"));
+        List<PersonDto> firstConnection = connectionClient.getFirstConnection();
+
+//TODO kafka
         PostDto postDto = new PostDto();
         BeanUtils.copyProperties(idFound, postDto);
         return postDto;

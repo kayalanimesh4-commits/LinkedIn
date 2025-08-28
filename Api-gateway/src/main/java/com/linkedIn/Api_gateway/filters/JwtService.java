@@ -21,4 +21,9 @@ public class JwtService {
         Claims payload = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
         return payload.getSubject();
     }
+
+    public String getUserRoleFromToken(String token){
+        Claims claims = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
+        return claims.get("role", String.class);
+    }
 }

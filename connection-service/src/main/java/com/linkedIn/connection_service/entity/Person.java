@@ -22,6 +22,10 @@ public class Person {
     @Id
     private Integer id;
 
+    private Long userId;
+
+    private String name;
+
 
 
 }
